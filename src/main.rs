@@ -1,7 +1,7 @@
-use std::env;
-use std::process;
 use assembler::Config;
 use env_logger;
+use std::env;
+use std::process;
 
 fn main() {
     env_logger::init();

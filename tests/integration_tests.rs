@@ -1,17 +1,16 @@
-use std::fs::File;
-use std::io::{BufReader, BufRead};
-use std::path::PathBuf;
-use std::process::Command;
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+use std::process::Command;
 use tempfile::{Builder, NamedTempFile};
 
-/// Runs the assembler command and compares the output 'hack' file generated
-/// against a known correct comparison file.
+/// Runs the assembler command and compares the output 'hack' file generated against a known
+/// correct comparison file.
 ///
-/// The paths to the input file and comparison file must be supplied, relative
-/// to the directory containing the manifest of the package.
-///
+/// The paths to the input file and comparison file must be supplied, relative to the directory
+/// containing the manifest of the package.
 fn check_output_against_file(infile_relative_path: &str, compfile_relative_path: &str) {
     let mut cmd = Command::cargo_bin("assembler").unwrap();
 
@@ -51,8 +50,7 @@ fn check_output_against_file(infile_relative_path: &str, compfile_relative_path:
         if outfile_line_bytes == 0 && compfile_line_bytes == 0 {
             break;
         } else if (outfile_line_bytes == 0) ^ (compfile_line_bytes == 0) {
-            panic!("Error: The generated output file and comparison file are \
-            different lengths!");
+            panic!("Error: The generated output file and comparison file are different lengths!");
         }
 
         let result = if outfile_line == compfile_line {
@@ -97,13 +95,13 @@ fn max() {
 }
 
 #[test]
-#[ignore]  // Runtime ~1-2 mins.
+#[ignore] // Runtime ~1-2 mins.
 fn pong_l() {
     check_output_against_file("testfiles/pong/PongL.asm", "testfiles/pong/PongL_comp.hack");
 }
 
 #[test]
-#[ignore]  // Runtime ~1-2 mins.
+#[ignore] // Runtime ~1-2 mins.
 fn pong() {
     check_output_against_file("testfiles/pong/Pong.asm", "testfiles/pong/Pong_comp.hack");
 }
@@ -118,9 +116,8 @@ fn rect() {
     check_output_against_file("testfiles/rect/Rect.asm", "testfiles/rect/Rect_comp.hack");
 }
 
-/// The below integration tests verify that the correct error responses are
-/// generated when invalid, or too few, command line arguments are specified.
-///
+/// The below integration tests verify that the correct error responses are generated when invalid,
+/// or too few, command line arguments are specified.
 fn test_invalid_args(infile_relative_path: &str, temp_outfile: NamedTempFile, error: &str) {
     let mut cmd = Command::cargo_bin("assembler").unwrap();
 

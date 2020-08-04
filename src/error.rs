@@ -1,7 +1,7 @@
+use std::error;
+use std::fmt;
 use std::io;
 use std::num::ParseIntError;
-use std::fmt;
-use std::error;
 use std::result;
 
 /// A specialised 'Result' type for assembler operations.
@@ -11,11 +11,9 @@ use std::result;
 ///
 /// The typedef is used to avoid writing out the 'Error' explicitly and is
 /// otherwise a direct mapping to 'Result'.
-///
 pub type Result<T> = result::Result<T, Error>;
 
 /// The error type for assembler operations.
-///
 #[derive(Debug)]
 pub struct Error {
     repr: Repr,
@@ -26,9 +24,10 @@ impl Error {
     ///
     /// Used to create errors which do not originate as a std::num::ParseIntError or from the
     /// std::io library.
-    ///
     pub fn new(error_kind: ErrorKind) -> Error {
-        Error { repr: Repr::Other(error_kind.as_str()) }
+        Error {
+            repr: Repr::Other(error_kind.as_str()),
+        }
     }
 }
 
@@ -40,7 +39,6 @@ enum Repr {
 }
 
 /// General categories of assembler error.
-///
 pub enum ErrorKind {
     /// The parser has advanced through all lines of the input BufReader.
     EndOfFile,
@@ -85,8 +83,7 @@ impl fmt::Display for Error {
         match self.repr {
             Repr::IO(ref e) => e.fmt(f),
             Repr::ParseInt(ref e) => e.fmt(f),
-            Repr::Other(ref e) =>
-                write!(f, "Error: {}", e),
+            Repr::Other(ref e) => write!(f, "Error: {}", e),
         }
     }
 }
@@ -103,13 +100,17 @@ impl error::Error for Error {
 
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Error {
-        Error { repr: Repr::IO(err) }
+        Error {
+            repr: Repr::IO(err),
+        }
     }
 }
 
 impl From<ParseIntError> for Error {
     fn from(err: ParseIntError) -> Error {
-        Error { repr: Repr::ParseInt(err) }
+        Error {
+            repr: Repr::ParseInt(err),
+        }
     }
 }
 

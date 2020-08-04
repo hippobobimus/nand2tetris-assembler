@@ -1,11 +1,11 @@
-use std::fs::File;
-use std::io::{BufWriter, Write};
-use std::path::Path;
-use log::{self, Level, log_enabled};
 use crate::code_translator;
 use crate::config::Config;
 use crate::error::Result;
 use crate::parser::{Command, Parser};
+use log::{self, log_enabled, Level};
+use std::fs::File;
+use std::io::{BufWriter, Write};
+use std::path::Path;
 
 /// Makes two passes through the input file.  First the symbol table is populated with entries
 /// from L-pseudocommands.  In the second pass, A- and C-commands are translated into binary
@@ -15,7 +15,6 @@ use crate::parser::{Command, Parser};
 /// and added if not already present.
 ///
 /// Returns Ok(()) if execution completes without error.
-///
 pub fn run(config: Config) -> Result<()> {
     let path = Path::new(&config.infile);
     let mut parser = Parser::new(path)?;
@@ -45,7 +44,6 @@ pub fn run(config: Config) -> Result<()> {
 /// Each line is processed for present L-pseudocommands,
 ///
 /// Returns Ok(0) if execution completes without error.
-///
 fn first_pass(parser: &mut Parser) -> Result<u8> {
     loop {
         match parser.advance()? {
@@ -55,7 +53,8 @@ fn first_pass(parser: &mut Parser) -> Result<u8> {
             },
             _ => {
                 if log_enabled!(Level::Debug) {
-                    log::debug!("\
+                    log::debug!(
+                        "\
                         >>> First pass: Parser advanced to next line. <<<\n\
                         RAW LINE READ: {:?}\n\
                         COMMAND: {:?}\
@@ -78,13 +77,13 @@ fn first_pass(parser: &mut Parser) -> Result<u8> {
 /// if no command is present.
 ///
 /// Returns Ok(0) if execution completes without error.
-///
 fn process_l_cmd(parser: &mut Parser) -> Result<u8> {
     match parser.get_command() {
         Some(Command::LCommand(_)) => {
             let symbol = parser.symbol().unwrap();
 
-            log::debug!("\
+            log::debug!(
+                "\
                 L-Command. Adding label to symbol table.\n\
                 Symbol: {:#?}\n\
                 ",
@@ -112,7 +111,6 @@ fn process_l_cmd(parser: &mut Parser) -> Result<u8> {
 /// the instruction is written to the output writer.
 ///
 /// Returns Ok(0) if execution completes without error.
-///
 fn second_pass<W>(parser: &mut Parser, output_writer: &mut W) -> Result<u8>
     where W: Write
 {
@@ -124,7 +122,8 @@ fn second_pass<W>(parser: &mut Parser, output_writer: &mut W) -> Result<u8>
             },
             _ => {
                 if log_enabled!(Level::Debug) {
-                    log::debug!("\
+                    log::debug!(
+                        "\
                         >>> Second pass: Parser advanced to next line. <<<\n\
                         RAW LINE READ: {:?}\n\
                         COMMAND: {:?}\
@@ -139,10 +138,13 @@ fn second_pass<W>(parser: &mut Parser, output_writer: &mut W) -> Result<u8>
                     None => continue,
                 };
 
-                log::debug!("\
+                log::debug!(
+                    "\
                     Translated assembly instruction into binary machine instruction\n\
                     MACHINE INSTRUCTION: {:016b}\
-                    ", line);
+                    ",
+                    line,
+                );
 
                 writeln!(output_writer, "{:016b}", line)?;
             },
@@ -157,15 +159,10 @@ fn second_pass<W>(parser: &mut Parser, output_writer: &mut W) -> Result<u8>
 ///
 /// Returns a result with an option that contains the instruction, or None if an A- or C-command
 /// was not present.
-///
 fn translate_line(parser: &mut Parser) -> Result<Option<u16>> {
     let instruction = match parser.get_command() {
-        Some(Command::ACommand(_)) => {
-            translate_a_cmd(parser)?
-        },
-        Some(Command::CCommand(_)) => {
-            translate_c_cmd(parser)?
-        },
+        Some(Command::ACommand(_)) => translate_a_cmd(parser)?,
+        Some(Command::CCommand(_)) => translate_c_cmd(parser)?,
         _ => {
             log::debug!("Not an A- or C-command. Ignore and continue to next line.");
             return Ok(None);
@@ -180,10 +177,10 @@ fn translate_line(parser: &mut Parser) -> Result<Option<u16>> {
 /// The supplied SymbolTable is referenced or updated as needed when symbolic A-Commands are found.
 ///
 /// Returns a result containing the 16-bit machine instruction.
-///
 fn translate_a_cmd(parser: &mut Parser) -> Result<u16> {
     if log_enabled!(Level::Debug) {
-        log::debug!("\
+        log::debug!(
+            "\
             A-Command\n\
             SYMBOL: {:?}\
             ",
@@ -197,19 +194,17 @@ fn translate_a_cmd(parser: &mut Parser) -> Result<u16> {
     // that needs to be added.
     match symbol.parse::<u16>() {
         Ok(b) => return Ok(b),
-        Err(_) => {
-            match parser.get_symbol_address(&symbol) {
-                Some(b) => return Ok(b),
-                None => {
-                    log::debug!("New variable. Adding to symbol table.");
+        Err(_) => match parser.get_symbol_address(&symbol) {
+            Some(b) => return Ok(b),
+            None => {
+                log::debug!("New variable. Adding to symbol table.");
 
-                    let b = parser.insert_variable(&symbol[..])?;
+                let b = parser.insert_variable(&symbol[..])?;
 
-                    parser.inc_ram_address()?;
+                parser.inc_ram_address()?;
 
-                    return Ok(b);
-                },
-            }
+                return Ok(b);
+            },
         },
     }
 }
@@ -217,10 +212,10 @@ fn translate_a_cmd(parser: &mut Parser) -> Result<u16> {
 /// Translates a C-command into a binary machine instruction.
 ///
 /// Returns a result containing the 16-bit machine instruction.
-///
 fn translate_c_cmd(parser: &mut Parser) -> Result<u16> {
     if log_enabled!(Level::Debug) {
-        log::debug!("\
+        log::debug!(
+            "\
             C-Command\n\
             DEST: {:?}\n\
             COMP: {:?}\n\
@@ -233,7 +228,7 @@ fn translate_c_cmd(parser: &mut Parser) -> Result<u16> {
     }
 
     let mut instruction = 0b1110_0000_0000_0000;
-    
+
     let dest = match parser.dest()? {
         Some(ref s) => code_translator::dest(&s[..])?,
         None => 0b0000_0000_0000_0000,
@@ -272,7 +267,8 @@ mod tests {
 
     #[test]
     fn try_first_pass() {
-        let mut parser = temp_parser("\
+        let mut parser = temp_parser(
+            "\
             @VAR_1          // Example A-command with variable symbol.\n\
             @12             // Example A-command without symbol.\n\
             @LOOP_1         // Example A-command with label symbol.\n\
@@ -280,32 +276,25 @@ mod tests {
             D&A;JNE         // Example C-command comp;jump\n\
             A=!D;null       // Example C-command dest=comp;jump\n\
             (LOOP_1)        // Example L-command.\
-            ");
+            ",
+        );
 
         first_pass(&mut parser).unwrap();
 
         // L-pseudocommand with ROM address 6.
-        assert_eq!(
-            parser.get_symbol_address("LOOP_1").unwrap(),
-            6,
-        );
+        assert_eq!(parser.get_symbol_address("LOOP_1").unwrap(), 6);
 
         // Symbolic A-commands should not be added to the symbol table.
-        assert_eq!(
-            parser.get_symbol_address("VAR_1"),
-            None,
-        );
+        assert_eq!(parser.get_symbol_address("VAR_1"), None);
 
         // C-commands should not be added to the symbol table.
-        assert_eq!(
-            parser.get_symbol_address("D&A;JNE"),
-            None,
-        );
+        assert_eq!(parser.get_symbol_address("D&A;JNE"), None);
     }
 
     #[test]
     fn try_second_pass() {
-        let mut parser = temp_parser("\
+        let mut parser = temp_parser(
+            "\
             @VAR_1          // Example A-command with variable symbol.\n\
             @12             // Example A-command without symbol.\n\
             @LOOP_1         // Example A-command with label symbol.\n\
@@ -313,12 +302,13 @@ mod tests {
             D&A;JNE         // Example C-command comp;jump\n\
             A=!D;null       // Example C-command dest=comp;jump\n\
             (LOOP_1)        // Example L-command.\
-            ");
+            ",
+        );
 
         // Mimic action of 'first_pass' function.
         for _ in 0..6 {
             parser.inc_rom_address();
-        };
+        }
         parser.insert_label("LOOP_1").unwrap();
 
         let mut output_buf: Vec<u8> = Vec::new();
@@ -330,14 +320,16 @@ mod tests {
         println!("{:?}", output);
 
         assert_eq!(
-            String::from("\
+            String::from(
+                "\
                 0000000000010000\n\
                 0000000000001100\n\
                 0000000000000110\n\
                 1110010101111000\n\
                 1110000000000101\n\
                 1110001101100000\n\
-                "),
+                ",
+            ),
             output,
         );
     }

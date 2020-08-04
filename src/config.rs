@@ -2,7 +2,6 @@ use crate::error::{Error, ErrorKind, Result};
 use regex::Regex;
 
 /// A struct to hold configuration options used when running the assembler.
-///
 #[derive(Debug, PartialEq)]
 pub struct Config {
     pub infile: String,
@@ -30,7 +29,7 @@ impl Config {
     where
         T: Iterator<Item = String>,
     {
-        args.next();  // Ignore path of executable.
+        args.next(); // Ignore path of executable.
 
         let re_asm_ext = Regex::new(r"\.asm$").unwrap();
 
