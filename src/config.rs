@@ -10,8 +10,9 @@ pub struct Config {
 }
 
 impl Config {
-    /// The constructor method takes command line arguments, provided to it as an
-    /// iterator that yields Strings.
+    /// The constructor method takes command line arguments, provided to it as an iterator that
+    /// yields Strings.  The input and output file path arguments are checked for appropriate file
+    /// extensions.
     ///
     /// # Examples
     ///
