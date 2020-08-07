@@ -12,7 +12,7 @@ use tempfile::{Builder, NamedTempFile};
 /// The paths to the input file and comparison file must be supplied, relative to the directory
 /// containing the manifest of the package.
 fn check_output_against_file(infile_relative_path: &str, compfile_relative_path: &str) {
-    let mut cmd = Command::cargo_bin("assembler").unwrap();
+    let mut cmd = Command::cargo_bin("nand2tetris-assembler").unwrap();
 
     let mut infile_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     infile_path.push(infile_relative_path);
@@ -119,7 +119,7 @@ fn rect() {
 /// The below integration tests verify that the correct error responses are generated when invalid,
 /// or too few, command line arguments are specified.
 fn test_invalid_args(infile_relative_path: &str, temp_outfile: NamedTempFile, error: &str) {
-    let mut cmd = Command::cargo_bin("assembler").unwrap();
+    let mut cmd = Command::cargo_bin("nand2tetris-assembler").unwrap();
 
     let mut infile_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     infile_path.push(infile_relative_path);
@@ -165,8 +165,8 @@ fn invalid_outfile_extension() {
 
 #[test]
 fn missing_arguments() {
-    let mut cmd_0 = Command::cargo_bin("assembler").unwrap();
-    let mut cmd_1 = Command::cargo_bin("assembler").unwrap();
+    let mut cmd_0 = Command::cargo_bin("nand2tetris-assembler").unwrap();
+    let mut cmd_1 = Command::cargo_bin("nand2tetris-assembler").unwrap();
 
     let mut infile_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     infile_path.push("testfiles/add/Add.asm");
@@ -185,7 +185,7 @@ fn missing_arguments() {
 
 #[test]
 fn infile_does_not_exist() {
-    let mut cmd = Command::cargo_bin("assembler").unwrap();
+    let mut cmd = Command::cargo_bin("nand2tetris-assembler").unwrap();
 
     let mut infile_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     infile_path.push("testfiles/add/Add01.asm");

@@ -1,4 +1,4 @@
-use assembler::Config;
+use nand2tetris_assembler::Config;
 use env_logger;
 use std::env;
 use std::process;
@@ -13,7 +13,7 @@ fn main() {
 
     log::debug!("Config generated from arguments\n{:#?}", config);
 
-    if let Err(e) = assembler::run(config) {
+    if let Err(e) = nand2tetris_assembler::run(config) {
         eprintln!("Application error: {}", e);
         process::exit(1);
     }
