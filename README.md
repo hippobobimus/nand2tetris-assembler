@@ -4,7 +4,7 @@ An assembler developed to translate programs written in the Hack assembly langua
 
 # Installation
 
-tbd...
+A linux binary is available under 'Releases'.
 
 # Operation
 
@@ -23,6 +23,12 @@ The file must have the extension '.asm', otherwise the process will exit with an
 The second required argument is the file path where the resultant translated binary code file should be saved.  If a file already exists with this path then it will be overwritten, else it will be created.
 
 The file path must have the extension '.hack', otherwise the process will exit with an error.
+
+## Debugging
+
+Optional debug logging can be activated by setting the below environment variable.
+
+> $ RUST_LOG=debug
 
 # Context
 

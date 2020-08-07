@@ -1,9 +1,48 @@
 language: rust
-rust:
-  - stable
-  - beta
-  - nightly
-jobs:
-  allow_failures:
-    - rust: nightly
-  fast_finish: true
+
+cache: cargo
+
+GH_TOKEN: &GH_TOKEN
+  secure: JYdSRzCqacUowxOZf66bHCA+dwDJeGd0sGpLmAHmfVXT6lY19AKgVHKwf1Dub/Gt2ANQ+ftoQPpwy3XIbddDNsAYldzDP2+EKU8SMdsCAhsrzO0XjbejFkeK4HFwM+BHWk3B4aRMGh0bK6YBfdcoQHGXaynMDNSfQNzXogv2oRvYFNXALVogpLA/GnBvCy6Q2qi7VTqra4XuzOFiL5JC+JEy232uqqTA4L9leDt6hONT+pnyLjOnpLGJKQ1fFKaxbFzTa/DkhNSyWGdJY1hbQZ1fHWPLqMLYrH2hQX3q+Gvh4Fs8mUT8lUCn1UsSBWVq7R+qOHOJxGH+Rrh3sZCV7P0tYI0ZmXwm+R99/tRpt7apQHJRMHouRQEAJE2FXJwOwDP31ydwu3D8pt563R9Oq0gSEc9O6y1yTaIAnzGplijBHHJZVVH97ic9krjCjAxzDiIjj23mViX4zD0uEyXhCi4+GIIw9Pf8iufvrqNBfsFOMrn2c71S8YdMy9pQFzx5V+yOeQwQ+pWHwTzsxVULfp/iTmUjTs79D+QAfi0MtKe66aM57UVQVH08vjOD8ibCOOQ1sBVtICkoclnPn4t3eG0hrpPDUMfmsORqnHPWfV56tDnv7ZrcNz0aGeXtq6LJ8DUZvugJUea9ibw65Mej50E6kR8CjcnnjCsmndAcLXU=
+
+DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
+  before_deploy:
+  - git config --local user.name "Rob Masters"
+  - git config --local user.email "rjcmasters@gmail.com"
+  - name="nand2tetris-assembler-$TRAVIS_TAG-$TARGET"
+  - mkdir $name
+  - cp target/$TARGET/release/nand2tetris-assembler $name/
+  - cp README.md $name/
+  - tar czvf $name.tar.gz $name
+  deploy:
+    provider: releases
+    api_key: *GH_TOKEN
+    file: nand2tetris-assembler-$TRAVIS_TAG-$TARGET.tar.gz
+    skip_cleanup: true
+    on:
+      branch: master
+      tags: true
+
+matrix:
+  include:
+
+  - name: Tests
+    env: RUST_BACKTRACE=1
+    rust:
+    - stable
+    - beta
+    - nightly
+    allow_failures:
+    - rust:
+      - beta
+      - nightly
+    fast_finish: true
+    script:
+    - cargo test
+
+  - name: Linux Binary
+    env: TARGET=x86_64-unknown-linux-musl
+    rust: stable
+    before_script: rustup target add $TARGET
+    script: cargo build --release --target $TARGET
+    <<: *DEPLOY_TO_GITHUB
