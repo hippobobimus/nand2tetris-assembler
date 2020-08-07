@@ -1,5 +1,5 @@
 [package]
-name = "assembler"
+name = "nand2tetris-assembler"
 version = "0.1.0"
 authors = ["Rob Masters <rjcmasters@gmail.com>"]
 edition = "2018"
