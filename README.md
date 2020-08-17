@@ -43,7 +43,3 @@ A number of known correct input files and output files are contained in the 'tes
 # Language
 
 For this task I took the opportunity to learn and then use the Rust programming language.  Firstly, I was interested in exploring a lower level language.  Moreover, having read about Rust's recent growth, I was motivated to understand the benefits it potentially confers for memory safety and error handling.
-
-# Takeaways
-
-As this was the first program I had written from scratch in Rust, there was somewhat of a learning curve involved.  However, I quickly came to appreciate some of the features of Rust that distinguish it from its peers.  The borrow-checker was highly useful for flagging possible memory safety bugs at compile time, whilst the 'Result' and 'Option' ensured robust error and edge case handling in a way that felt natural and integral to the design process.
